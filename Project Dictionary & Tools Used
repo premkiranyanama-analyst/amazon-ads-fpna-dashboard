@@ -1,0 +1,94 @@
+
+## 📖 Project Dictionary
+
+| Term                         | Description                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Actual Revenue**           | The revenue generated from advertisers through Amazon Ads.                                                     |
+| **Forecast Revenue**         | The expected revenue estimated during the planning process.                                                    |
+| **Revenue Variance**         | Difference between Actual Revenue and Forecast Revenue.                                                        |
+| **Forecast Accuracy %**      | Measures how closely actual revenue matched the forecast.                                                      |
+| **Gross Profit**             | Revenue remaining after deducting advertising costs and cost of service.                                       |
+| **Gross Margin %**           | Gross Profit expressed as a percentage of Actual Revenue.                                                      |
+| **Quota**                    | Revenue target assigned to each sales representative.                                                          |
+| **Quota Attainment %**       | Percentage of the sales quota achieved by a sales representative.                                              |
+| **Productivity Score**       | Internal metric representing sales representative efficiency and performance.                                  |
+| **Product Adoption Score**   | Indicates how widely an advertising product is adopted by advertisers.                                         |
+| **Meetings Booked**          | Number of meetings scheduled by sales representatives with advertisers.                                        |
+| **Opportunities Created**    | Qualified sales opportunities generated from meetings.                                                         |
+| **Active Campaigns**         | Number of advertising campaigns currently running for an advertiser.                                           |
+| **Impressions**              | Number of times advertisements were displayed to users.                                                        |
+| **Clicks**                   | Number of times users clicked on advertisements.                                                               |
+| **Conversions**              | Number of desired customer actions completed after clicking an advertisement (e.g., purchase, signup).         |
+| **CTR (Click-Through Rate)** | Percentage of impressions that resulted in clicks.                                                             |
+| **Conversion Rate %**        | Percentage of clicks that resulted in conversions.                                                             |
+| **CPC (Cost Per Click)**     | Average advertising cost paid for each click.                                                                  |
+| **Risk Flag**                | Business performance indicator categorizing accounts as On Track, Below Forecast, Quota Risk, or Margin Watch. |
+| **Below Forecast**           | Accounts generating less revenue than forecasted.                                                              |
+| **Quota Risk**               | Accounts that may prevent sales representatives from achieving their assigned quota.                           |
+| **Margin Watch**             | Accounts with lower-than-expected profit margins requiring monitoring.                                         |
+| **On Track**                 | Accounts performing within expected financial targets.                                                         |
+
+---
+
+# 🛠️ Tools & Technologies
+
+| Tool                | Purpose                                                              |
+| ------------------- | -------------------------------------------------------------------- |
+| **Microsoft Excel** | Initial data cleaning, formatting, and validation                    |
+| **MySQL**           | Data storage, SQL analysis, KPI calculations, and business reporting |
+| **Tableau**         | Interactive dashboard development and data visualization             |
+| **Claude Sonnet**   | Generated a realistic simulated Amazon Ads dataset for analysis      |
+| **GitHub**          | Project documentation, version control, and portfolio hosting        |
+
+---
+
+# 💻 SQL Concepts Used
+
+* Aggregate Functions (`SUM`, `AVG`, `COUNT`, `ROUND`)
+* `GROUP BY`
+* `ORDER BY`
+* `CASE WHEN`
+* Common Table Expressions (CTEs)
+* Window Functions (`RANK()`, `LAG()`)
+* `NULLIF()` to prevent divide-by-zero errors
+* `COUNT(DISTINCT)`
+* Business KPI Calculations
+* Forecast vs Actual Analysis
+* Revenue Variance Analysis
+* Profitability Analysis
+* Sales Productivity Analysis
+
+---
+
+# 📊 Tableau Dashboard Includes
+
+* Executive KPI Cards
+* Revenue by Region
+* Product Revenue & Gross Profit
+* Productivity vs Revenue
+* Revenue at Risk
+* Monthly Revenue Variance Shortfalls
+* Global Revenue & Gross Profit Map
+* Interactive Filters (Year, Quarter, Region, Product)
+
+---
+
+# 📈 Business KPIs Analyzed
+
+* Total Revenue
+* Gross Profit
+* Gross Margin %
+* Forecast Accuracy %
+* Revenue Variance
+* Quota Attainment %
+* Revenue by Region
+* Revenue by Product
+* Product Adoption Score
+* Productivity Score
+* Advertiser Profitability
+* Revenue Risk Exposure
+* Monthly Revenue Trend
+* Quarterly Business Review
+* Yearly Business Review
+
+---
