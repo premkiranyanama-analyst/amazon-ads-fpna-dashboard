@@ -2,6 +2,14 @@
 # amazon-ads-fpna-dashboard
 Built an end-to-end Financial Planning &amp; Analysis (FP&amp;A) dashboard for Amazon Ads using Excel, MySQL, and Tableau. The project analyzes revenue, profitability, forecast accuracy, quota attainment, productivity, business risk, and executive KPIs through SQL-based financial analysis and interactive dashboards.
 
+
+Project Overview
+
+This project was created to simulate the work of a Financial Analyst / FP&A Analyst supporting an Amazon Ads business unit. The goal was to build a complete end-to-end finance analytics project starting from raw data and ending with a professional Tableau dashboard and business recommendations.
+
+The project focused on analyzing revenue, gross profit, forecast accuracy, quota attainment, productivity, product performance, regional performance, advertiser performance, and revenue risk exposure.
+
+
 <img width="2048" height="1216" alt="dashboard" src="https://github.com/user-attachments/assets/05e0bdbe-6ee9-4d47-9300-04cbcc54e284" />
 
 <img width="2126" height="1265" alt="global map" src="https://github.com/user-attachments/assets/6ed3708c-9988-49bc-8fc4-a0b9637494c9" />
