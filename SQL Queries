@@ -1,0 +1,544 @@
+This file contains all the SQL queries used to build this project. The queries were written to perform data cleaning, 
+calculate financial KPIs, analyze revenue and profitability, evaluate forecast accuracy and quota attainment, assess 
+business risk, and generate the insights used to create the Tableau dashboard.
+
+
+## 1. Forecast vs Actual Revenue by Region
+
+```sql
+SELECT
+    region,
+    ROUND(SUM(actual_revenue), 2) AS actual_revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast_revenue,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        (SUM(actual_revenue) - SUM(forecast_revenue))
+        / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS variance_pct
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY revenue_variance DESC;
+```
+
+**Explanation:**
+This analysis compares actual revenue against forecasted revenue by region. It helps identify which regions exceeded or 
+missed plan and supports FP&A variance analysis for business reviews.
+
+---
+
+## 2. Overall Forecast Accuracy
+
+```sql
+SELECT
+    ROUND(SUM(actual_revenue), 2) AS actual_revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast_revenue,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct
+FROM fact_ads_perf;
+```
+
+**Explanation:**
+This KPI measures how closely total actual revenue matched forecasted revenue. A result above 100% means the business 
+exceeded forecast expectations.
+
+---
+
+## 3. Forecast Accuracy by Region
+
+```sql
+SELECT
+    region,
+    ROUND(SUM(actual_revenue), 2) AS actual_revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast_revenue,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY forecast_accuracy_pct DESC;
+```
+
+**Explanation:**
+This breaks forecast accuracy down by region to identify where planning assumptions were strongest or weakest.
+
+---
+
+## 4. Forecast Accuracy by Industry
+
+```sql
+SELECT
+    industry,
+    ROUND(SUM(actual_revenue), 2) AS actual_revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast_revenue,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct
+FROM fact_ads_perf
+GROUP BY industry
+ORDER BY forecast_accuracy_pct DESC;
+```
+
+**Explanation:**
+This shows which advertiser industries performed above or below forecast, helping finance teams understand demand performance 
+by customer segment.
+
+---
+
+## 5. Sales Rep Quota Attainment
+
+```sql
+SELECT
+    region,
+    sales_rep_name,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(quota), 2) AS quota,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100,
+        2
+    ) AS quota_attainment_pct
+FROM fact_ads_perf
+GROUP BY region, sales_rep_name
+ORDER BY revenue DESC
+LIMIT 10;
+```
+
+**Explanation:**
+This identifies top sales reps by revenue and compares their performance against quota. It helps evaluate sales execution 
+and quota achievement.
+
+---
+
+## 6. Quota Performance Classification
+
+```sql
+SELECT
+    sales_rep_name,
+    ROUND(SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100, 2) AS quota_attainment_pct,
+    CASE
+        WHEN SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100 >= 120 THEN 'Exceeds Target'
+        WHEN SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100 >= 100 THEN 'Meets Target'
+        ELSE 'Below Target'
+    END AS performance_status
+FROM fact_ads_perf
+GROUP BY sales_rep_name;
+```
+
+**Explanation:**
+This uses `CASE WHEN` logic to classify sales reps into performance groups, making the analysis easier for leadership to interpret.
+
+---
+
+## 7. Sales Rep Ranking Within Each Region
+
+```sql
+SELECT
+    region,
+    sales_rep_name,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100, 2) AS quota_attainment_pct,
+    RANK() OVER (
+        PARTITION BY region
+        ORDER BY SUM(actual_revenue) DESC
+    ) AS regional_revenue_rank
+FROM fact_ads_perf
+GROUP BY region, sales_rep_name
+ORDER BY region, regional_revenue_rank;
+```
+
+**Explanation:**
+This uses a window function to rank sales reps within each region. It helps identify local top performers instead of only 
+comparing reps globally.
+
+---
+
+## 8. Regional Productivity Analysis
+
+```sql
+SELECT
+    region,
+    COUNT(DISTINCT sales_rep_id) AS total_reps,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(actual_revenue) / COUNT(DISTINCT sales_rep_id), 2) AS revenue_per_rep,
+    ROUND(AVG(productivity_score), 2) AS avg_productivity
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY avg_productivity DESC;
+```
+
+**Explanation:**
+This compares revenue, revenue per rep, and productivity by region. It shows that the highest revenue region is not always 
+the most efficient region.
+
+---
+
+## 9. Advertiser Profitability Analysis
+
+```sql
+SELECT
+    advertiser_name,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(ad_spend) + SUM(cost_of_service), 2) AS total_cost,
+    ROUND(SUM(actual_revenue) - (SUM(ad_spend) + SUM(cost_of_service)), 2) AS gross_profit,
+    ROUND(
+        (SUM(actual_revenue) - (SUM(ad_spend) + SUM(cost_of_service)))
+        / NULLIF(SUM(actual_revenue), 0) * 100,
+        2
+    ) AS gross_margin_pct
+FROM fact_ads_perf
+GROUP BY advertiser_name
+ORDER BY gross_profit DESC;
+```
+
+**Explanation:**
+This identifies which advertisers generate the most revenue and gross profit. Since margins are relatively consistent, 
+profit contribution is mainly driven by revenue scale.
+
+---
+
+## 10. Product Revenue and Adoption Ranking
+
+```sql
+SELECT
+    ad_product,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(gross_profit), 2) AS gross_profit,
+    ROUND(AVG(product_adoption_score), 2) AS adoption_score,
+    RANK() OVER (
+        ORDER BY SUM(actual_revenue) DESC
+    ) AS revenue_rank,
+    RANK() OVER (
+        ORDER BY AVG(product_adoption_score) DESC
+    ) AS adoption_rank
+FROM fact_ads_perf
+GROUP BY ad_product
+ORDER BY revenue_rank;
+```
+
+**Explanation:**
+This ranks ad products by both revenue and adoption. It helps identify which products are not only generating revenue but 
+also gaining customer adoption.
+
+---
+
+## 11. Product Performance by Region
+
+```sql
+SELECT
+    region,
+    ad_product,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(gross_profit), 2) AS gross_profit,
+    ROUND(AVG(product_adoption_score), 2) AS adoption_score,
+    RANK() OVER (
+        PARTITION BY region
+        ORDER BY SUM(actual_revenue) DESC
+    ) AS regional_product_rank
+FROM fact_ads_perf
+GROUP BY region, ad_product
+ORDER BY region, regional_product_rank;
+```
+
+**Explanation:**
+This analyzes product performance within each region. It helps understand whether product demand is consistent globally 
+or varies by market.
+
+---
+
+## 12. Revenue Performance Category by Region
+
+```sql
+SELECT
+    region,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    CASE
+        WHEN SUM(actual_revenue) >= 105000000 THEN 'Top Performer'
+        WHEN SUM(actual_revenue) >= 100000000 THEN 'Strong Performer'
+        ELSE 'Needs Improvement'
+    END AS performance_category
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY revenue DESC;
+```
+
+**Explanation:**
+This converts raw revenue numbers into simple executive categories. It makes the output easier to use in business reviews.
+
+---
+
+## 13. Revenue and Profit by Risk Flag
+
+```sql
+SELECT
+    risk_flag,
+    COUNT(DISTINCT advertiser_id) AS accounts,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(gross_profit), 2) AS gross_profit
+FROM fact_ads_perf
+GROUP BY risk_flag
+ORDER BY revenue DESC;
+```
+
+**Explanation:**
+This shows how much revenue and gross profit are tied to each risk category, helping finance teams monitor accounts that need attention.
+
+---
+
+## 14. Revenue Exposure by Product
+
+```sql
+SELECT
+    ad_product,
+    risk_flag,
+    ROUND(SUM(actual_revenue), 2) AS revenue_exposure,
+    ROUND(SUM(gross_profit), 2) AS gross_profit
+FROM fact_ads_perf
+WHERE risk_flag IN ('Below Forecast', 'Quota Risk')
+GROUP BY ad_product, risk_flag
+ORDER BY revenue_exposure DESC;
+```
+
+**Explanation:**
+This identifies revenue tied to accounts flagged as Below Forecast or Quota Risk. It highlights which products carry 
+the highest performance risk.
+
+---
+
+## 15. Advertiser Segmentation
+
+```sql
+SELECT
+    advertiser_name,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    CASE
+        WHEN SUM(actual_revenue) > 15000000 THEN 'Strategic Account'
+        WHEN SUM(actual_revenue) > 8000000 THEN 'Growth Account'
+        ELSE 'Small Account'
+    END AS account_segment
+FROM fact_ads_perf
+GROUP BY advertiser_name
+ORDER BY revenue DESC;
+```
+
+**Explanation:**
+This segments advertisers by revenue size so finance and sales teams can prioritize high-value accounts.
+
+---
+
+## 16. Sales Funnel Efficiency by Region
+
+```sql
+SELECT
+    region,
+    SUM(meetings_booked) AS meetings_booked,
+    SUM(opportunities_created) AS opportunities_created,
+    ROUND(
+        SUM(opportunities_created) / NULLIF(SUM(meetings_booked), 0) * 100,
+        2
+    ) AS opportunity_conversion_pct,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(opportunities_created), 0),
+        2
+    ) AS revenue_per_opportunity
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY revenue_per_opportunity DESC;
+```
+
+**Explanation:**
+This connects sales activity to revenue outcomes by showing how effectively meetings turn into opportunities and how much 
+revenue each opportunity generates.
+
+---
+
+## 17. Monthly Business Review
+
+```sql
+SELECT
+    year,
+    month,
+    region,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        (SUM(actual_revenue) - SUM(forecast_revenue))
+        / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS variance_pct,
+    ROUND(AVG(productivity_score), 2) AS productivity_score
+FROM fact_ads_perf
+GROUP BY year, month, region
+ORDER BY year, month, region;
+```
+
+**Explanation:**
+This creates a monthly FP&A reporting view to track revenue, forecast variance, and productivity by region.
+
+---
+
+## 18. Quarterly Business Review
+
+```sql
+SELECT
+    year,
+    quarter,
+    region,
+    industry,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        (SUM(actual_revenue) - SUM(forecast_revenue))
+        / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS variance_pct,
+    ROUND(SUM(gross_profit), 2) AS gross_profit,
+    ROUND(
+        SUM(gross_profit) / NULLIF(SUM(actual_revenue), 0) * 100,
+        2
+    ) AS gross_margin_pct
+FROM fact_ads_perf
+GROUP BY year, quarter, region, industry
+ORDER BY year, quarter, revenue DESC;
+```
+
+**Explanation:**
+This supports Quarterly Business Reviews by summarizing revenue, forecast performance, gross profit, and margin by region and industry.
+
+---
+
+## 19. Yearly Business Review
+
+```sql
+SELECT
+    year,
+    region,
+    industry,
+    product_category,
+    ROUND(SUM(actual_revenue), 2) AS revenue,
+    ROUND(SUM(forecast_revenue), 2) AS forecast,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct,
+    ROUND(SUM(gross_profit), 2) AS gross_profit,
+    ROUND(AVG(product_adoption_score), 2) AS adoption_score,
+    ROUND(AVG(productivity_score), 2) AS productivity_score
+FROM fact_ads_perf
+GROUP BY year, region, industry, product_category
+ORDER BY year, revenue DESC;
+```
+
+**Explanation:**
+This provides an annual performance view across region, industry, and product category for long-term FP&A analysis.
+
+---
+
+## 20. Monthly Revenue Trend with Month-over-Month Change
+
+```sql
+WITH monthly_revenue AS (
+    SELECT
+        year,
+        month,
+        MIN(month_date) AS month_date,
+        ROUND(SUM(actual_revenue), 2) AS revenue
+    FROM fact_ads_perf
+    GROUP BY year, month
+)
+SELECT
+    year,
+    month,
+    revenue,
+    LAG(revenue) OVER (
+        ORDER BY month_date
+    ) AS previous_month_revenue,
+    ROUND(
+        revenue - LAG(revenue) OVER (ORDER BY month_date),
+        2
+    ) AS mom_revenue_change,
+    ROUND(
+        (revenue - LAG(revenue) OVER (ORDER BY month_date))
+        / NULLIF(LAG(revenue) OVER (ORDER BY month_date), 0) * 100,
+        2
+    ) AS mom_growth_pct
+FROM monthly_revenue
+ORDER BY month_date;
+```
+
+**Explanation:**
+This uses a CTE and `LAG()` window function to compare each month’s revenue against the previous month and calculate 
+month-over-month growth.
+
+---
+
+## 21. Executive KPI Summary
+
+```sql
+SELECT
+    ROUND(SUM(actual_revenue), 2) AS total_revenue,
+    ROUND(SUM(gross_profit), 2) AS total_gross_profit,
+    ROUND(
+        SUM(gross_profit) / NULLIF(SUM(actual_revenue), 0) * 100,
+        2
+    ) AS gross_margin_pct,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100,
+        2
+    ) AS quota_attainment_pct,
+    ROUND(AVG(productivity_score), 2) AS avg_productivity_score,
+    COUNT(DISTINCT advertiser_id) AS total_advertisers,
+    COUNT(DISTINCT sales_rep_id) AS total_sales_reps,
+    COUNT(DISTINCT region) AS total_regions
+FROM fact_ads_perf;
+```
+
+**Explanation:**
+This summarizes the full business into executive-level KPIs, including revenue, gross profit, margin, forecast accuracy, 
+quota attainment, productivity, advertisers, sales reps, and regions.
+
+---
+
+## 22. KPI Summary by Region
+
+```sql
+SELECT
+    region,
+    ROUND(SUM(actual_revenue), 2) AS total_revenue,
+    ROUND(SUM(gross_profit), 2) AS total_gross_profit,
+    ROUND(
+        SUM(gross_profit) / NULLIF(SUM(actual_revenue), 0) * 100,
+        2
+    ) AS gross_margin_pct,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(forecast_revenue), 0) * 100,
+        2
+    ) AS forecast_accuracy_pct,
+    ROUND(SUM(actual_revenue) - SUM(forecast_revenue), 2) AS revenue_variance,
+    ROUND(
+        SUM(actual_revenue) / NULLIF(SUM(quota), 0) * 100,
+        2
+    ) AS quota_attainment_pct,
+    ROUND(AVG(productivity_score), 2) AS productivity_score,
+    COUNT(DISTINCT advertiser_id) AS advertisers,
+    COUNT(DISTINCT sales_rep_id) AS sales_reps,
+    SUM(active_campaigns) AS active_campaigns
+FROM fact_ads_perf
+GROUP BY region
+ORDER BY total_revenue DESC;
+```
+
+**Explanation:**
+This compares executive KPIs across regions, helping leadership evaluate revenue, profitability, forecast accuracy, 
+productivity, and campaign activity by market.
