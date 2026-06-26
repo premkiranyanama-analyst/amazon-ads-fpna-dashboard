@@ -1,0 +1,407 @@
+# Amazon Ads FP&A Dashboard Project Summary
+
+## Project Overview
+
+This project was created to simulate the work of a Financial Analyst / FP&A Analyst supporting an Amazon Ads business unit. The goal was to build a complete end-to-end finance analytics project starting from raw data and ending with a professional Tableau dashboard and business recommendations.
+
+The project focused on analyzing revenue, gross profit, forecast accuracy, quota attainment, productivity, product performance, regional performance, advertiser performance, and revenue risk exposure.
+
+---
+
+## Step 1: Dataset Creation and Download
+
+I started by using Claude Sonnet to generate a simulated Amazon Ads FP&A dataset. The goal was to create a realistic business dataset that could support financial analysis, forecasting, sales productivity analysis, and executive dashboard reporting.
+
+The dataset was designed to represent an Amazon Ads business with:
+
+* 36,000 transaction-level records
+* 24 months of performance data
+* 5 global regions
+* 50 advertisers
+* 100 sales representatives
+* Multiple advertising products
+* Revenue, cost, profit, forecast, quota, productivity, and risk metrics
+
+This allowed me to work with a dataset that closely resembled the type of information an FP&A analyst might use in a real business review.
+
+---
+
+## Step 2: Identified and Defined Field Names
+
+Before importing the data, I reviewed the dataset structure and identified all major fields needed for analysis.
+
+The important fields included:
+
+* Date fields: `month_date`, `month`, `quarter`, `year`
+* Geography fields: `region_code`, `region`, `country`
+* Sales fields: `sales_rep_id`, `sales_rep_name`, `rep_level`, `quota`
+* Advertiser fields: `advertiser_id`, `advertiser_name`, `advertiser_tier`, `industry`, `account_segment`
+* Product fields: `product_category`, `ad_product`
+* Financial fields: `actual_revenue`, `forecast_revenue`, `revenue_variance`, `gross_profit`, `gross_margin_pct`
+* Productivity fields: `productivity_score`, `product_adoption_score`
+* Sales activity fields: `meetings_booked`, `opportunities_created`, `active_campaigns`
+* Advertising metrics: `impressions`, `clicks`, `conversions`, `ctr_pct`, `conversion_rate_pct`, `cpc`
+* Risk field: `risk_flag`
+
+This step helped me understand what each column represented and how it could be used for FP&A reporting.
+
+---
+
+## Step 3: Cleaned the Data in Excel
+
+After downloading the dataset, I opened it in Excel to perform initial data cleaning and review.
+
+In Excel, I checked:
+
+* Column names
+* Missing values
+* Date formatting
+* Number formatting
+* Extra spaces
+* Duplicate-looking records
+* Incorrect headers
+* Revenue and cost fields
+* Consistency of categorical fields such as region, industry, and product
+
+This helped ensure that the dataset was readable and structured before loading it into MySQL.
+
+---
+
+## Step 4: Imported the Dataset into MySQL
+
+After cleaning the file in Excel, I imported the dataset into MySQL.
+
+I created a database for the project and loaded the main fact table containing the 36,000 transaction-level records.
+
+The fact table became the central table for analysis and contained all financial, sales, advertiser, product, and risk metrics.
+
+I also validated the import by running record counts to confirm that all 36,000 rows were successfully loaded.
+
+---
+
+## Step 5: Further Data Cleaning in SQL
+
+After importing the dataset into MySQL, I performed additional data validation and cleaning using SQL.
+
+This included:
+
+* Checking row counts
+* Reviewing table structure with `DESCRIBE`
+* Checking sample records using `LIMIT`
+* Validating numeric columns
+* Confirming date fields loaded correctly
+* Renaming the main table to a cleaner professional name: `fact_ads_perf`
+
+This step ensured the SQL environment was ready for analysis.
+
+---
+
+## Step 6: Created Fact and Dimension Tables
+
+To make the project more professional, I organized the data using a star schema structure.
+
+I created:
+
+* `fact_ads_perf` as the main fact table
+* `dim_sales_rep` for sales representative information
+* `dim_advertiser` for advertiser/customer information
+* `dim_region` for region and country information
+
+This structure helped separate transaction-level performance data from descriptive business dimensions.
+
+---
+
+## Step 7: Validated Data Relationships
+
+After creating the dimension tables, I checked whether the fact table matched correctly with each dimension table.
+
+I validated:
+
+* Sales rep IDs
+* Advertiser IDs
+* Region codes
+
+I used `LEFT JOIN` checks to confirm that there were no unmatched records. This step helped ensure the data model was clean and reliable before building reports.
+
+---
+
+## Step 8: Built Core FP&A SQL Analysis
+
+After validating the data, I started writing SQL queries for core FP&A analysis.
+
+The main analyses included:
+
+* Total revenue
+* Total gross profit
+* Gross margin %
+* Forecast accuracy %
+* Revenue variance
+* Quota attainment %
+* Regional revenue performance
+* Advertiser profitability
+* Product performance
+* Productivity analysis
+* Risk account analysis
+
+These queries helped convert raw transaction data into useful financial metrics.
+
+---
+
+## Step 9: Built Forecast and Variance Analysis
+
+I analyzed actual revenue compared to forecasted revenue.
+
+This included:
+
+* Forecast vs actual revenue by region
+* Overall forecast accuracy
+* Forecast accuracy by region
+* Forecast accuracy by industry
+* Forecast accuracy by product
+
+This helped identify whether the business was performing above or below plan and which business areas were forecasted most accurately.
+
+---
+
+## Step 10: Built Sales Quota and Productivity Analysis
+
+I analyzed sales performance by comparing actual revenue against sales quotas.
+
+This included:
+
+* Top sales reps by revenue
+* Quota attainment %
+* Sales rep performance classification using `CASE WHEN`
+* Ranking sales reps within each region using `RANK()`
+* Revenue per sales rep
+* Productivity score by region
+
+This helped identify top-performing reps and evaluate regional sales efficiency.
+
+---
+
+## Step 11: Built Product and Profitability Analysis
+
+I analyzed which advertising products generated the most revenue and gross profit.
+
+This included:
+
+* Revenue by ad product
+* Gross profit by ad product
+* Product adoption score
+* Product ranking by revenue and adoption
+* Gross margin by product
+
+The analysis showed that Streaming TV was the strongest product, generating the highest revenue, gross profit, and adoption score.
+
+---
+
+## Step 12: Built Advertiser Profitability Analysis
+
+I analyzed advertiser-level revenue, cost, gross profit, and gross margin.
+
+This helped identify which advertisers contributed the most profit to the business.
+
+I also learned that gross margin percentages were very similar across advertisers, which meant that profit differences were mostly driven by revenue scale rather than margin differences.
+
+---
+
+## Step 13: Built Revenue Risk Analysis
+
+I analyzed the `risk_flag` column to understand business risk.
+
+The risk categories included:
+
+* On Track
+* Below Forecast
+* Quota Risk
+* Margin Watch
+
+I focused on accounts flagged as Below Forecast and Quota Risk to estimate revenue exposure. This helped identify where management attention should be focused.
+
+Streaming TV appeared as the product with the largest revenue exposure, meaning the biggest product category also carried the highest concentration of risk.
+
+---
+
+## Step 14: Built Monthly Forecast Shortfall Analysis
+
+I analyzed negative revenue variance at the monthly advertiser level.
+
+This helped identify specific advertisers and months where actual revenue fell below forecast.
+
+Instead of only looking at total advertiser performance, this analysis showed short-term monthly underperformance that finance and sales teams could investigate during Monthly Business Reviews.
+
+---
+
+## Step 15: Built Business Review Queries
+
+I created SQL queries for:
+
+* Monthly Business Reviews
+* Quarterly Business Reviews
+* Yearly Business Reviews
+
+These queries summarized revenue, forecast, variance, gross profit, gross margin, productivity, and adoption across key dimensions such as region, industry, and product category.
+
+This step helped simulate how FP&A teams prepare reporting for leadership meetings.
+
+---
+
+## Step 16: Used Advanced SQL Concepts
+
+To strengthen the technical quality of the project, I used advanced SQL concepts including:
+
+* `CASE WHEN` statements
+* `RANK()` window functions
+* `LAG()` window functions
+* Common Table Expressions (CTEs)
+* Aggregate functions
+* `NULLIF()` to avoid divide-by-zero errors
+* `COUNT(DISTINCT)` for unique counts
+* Grouping and ordering by business dimensions
+
+These SQL techniques helped make the analysis more professional and interview-ready.
+
+---
+
+## Step 17: Exported Data for Tableau
+
+After building the SQL analysis, I connected the cleaned dataset to Tableau.
+
+The goal was to turn SQL outputs and business metrics into professional dashboard visuals that could be shown in a portfolio or interview.
+
+---
+
+## Step 18: Built Tableau KPI Dashboard
+
+In Tableau, I created an executive dashboard with key FP&A metrics:
+
+* Total Revenue
+* Gross Profit
+* Forecast Accuracy %
+* Quota Attainment %
+
+These KPIs gave a quick executive-level view of overall business health.
+
+---
+
+## Step 19: Built Regional Performance Visuals
+
+I created Tableau visuals to show:
+
+* Revenue by region
+* Productivity vs revenue by region
+* Forecast accuracy by region
+
+These visuals helped compare business performance across global markets.
+
+One key insight was that India generated the highest revenue, while EMEA had the highest productivity score.
+
+---
+
+## Step 20: Built Product Performance Visuals
+
+I created visuals for:
+
+* Revenue by ad product
+* Gross profit by ad product
+* Revenue vs gross profit by ad product
+* Product adoption analysis
+
+These visuals showed that Streaming TV was the strongest-performing product.
+
+---
+
+## Step 21: Built Risk Exposure Visuals
+
+I created Tableau visuals to show revenue exposure by product and risk type.
+
+This helped show how much revenue was associated with accounts flagged as Below Forecast or Quota Risk.
+
+The key insight was that Streaming TV was both the highest revenue product and the product with the largest revenue exposure.
+
+---
+
+## Step 22: Built Global Revenue Map
+
+I created a world map in Tableau using country-level revenue and gross profit.
+
+This map helped visualize where Amazon Ads revenue and profit were generated geographically.
+
+It made the dashboard more interactive and easier to understand from a global business perspective.
+
+---
+
+## Step 23: Built Monthly Variance Shortfall Visual
+
+I created a Tableau visual showing the largest monthly revenue variance shortfalls by advertiser.
+
+This helped identify advertisers and months where actual revenue was below forecast.
+
+This type of analysis is useful for monthly performance reviews and account-level follow-up.
+
+---
+
+## Step 24: Designed Dashboard for Portfolio Presentation
+
+After creating the visuals, I organized the dashboard into a clean FP&A story:
+
+1. Executive KPIs
+2. Revenue by Region
+3. Product Performance
+4. Productivity vs Revenue
+5. Revenue Risk Exposure
+6. Monthly Revenue Shortfalls
+7. Global Revenue Map
+
+This structure makes the dashboard easy for recruiters, hiring managers, and interviewers to understand.
+
+---
+
+## Step 25: Key Business Insights
+
+The main insights from the project were:
+
+* The simulated Amazon Ads business generated over $510M in revenue.
+* Gross profit was over $332M.
+* Forecast accuracy was above 101%, meaning actual revenue exceeded forecast.
+* India generated the highest regional revenue.
+* EMEA had the highest productivity score.
+* Streaming TV was the strongest product by revenue, gross profit, and adoption.
+* Streaming TV also had the largest revenue exposure from risk-flagged accounts.
+* Monthly shortfall analysis identified advertisers requiring closer review.
+
+---
+
+## Step 26: Business Recommendations
+
+Based on the analysis, I would recommend:
+
+* Prioritizing Streaming TV account reviews because it is both the largest revenue driver and largest risk exposure area.
+* Studying EMEA sales practices to understand why productivity is highest there.
+* Using India as a benchmark for revenue performance.
+* Monitoring Below Forecast and Quota Risk accounts monthly.
+* Tracking revenue variance by advertiser to catch short-term performance issues earlier.
+* Continuing to use executive KPI dashboards for Monthly and Quarterly Business Reviews.
+
+---
+
+## Step 27: Why This Project Is Relevant to FP&A Roles
+
+This project is relevant to Financial Analyst and FP&A roles because it demonstrates the ability to:
+
+* Work with business data
+* Clean and validate datasets
+* Build SQL reporting models
+* Calculate financial KPIs
+* Analyze forecast vs actual performance
+* Perform variance analysis
+* Evaluate profitability
+* Identify revenue risk
+* Build executive dashboards
+* Communicate insights clearly
+
+The project shows not only technical skills, but also business thinking.
+
+---
+
