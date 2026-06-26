@@ -21,3 +21,6 @@ The project focused on analyzing revenue, gross profit, forecast accuracy, quota
 <img width="1120" height="362" alt="prod vs revenue by region" src="https://github.com/user-attachments/assets/82374b5e-0719-4d10-a8f9-46bfc47f3f81" />
 
 <img width="2166" height="440" alt="rev at risk" src="https://github.com/user-attachments/assets/c488ba01-6e2f-421c-8ffc-8dab502cfe38" />
+
+
+Note: This project uses a simulated Amazon Ads dataset created for educational and portfolio purposes. It does not contain proprietary or confidential Amazon data.
